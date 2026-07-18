@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Converter — SaucePhoto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0a0a0f;--surface:rgba(255,255,255,0.045);--surface-h:rgba(255,255,255,0.08);
+      --border:rgba(255,255,255,0.07);--border-s:rgba(255,255,255,0.13);
+      --text:#f2f2f7;--muted:rgba(242,242,247,0.45);--dim:rgba(242,242,247,0.2);
+      --accent:#bf5af2;--accent-dim:rgba(191,90,242,0.12);
+      --shadow:0 12px 48px rgba(0,0,0,0.7);--r:18px;--r-sm:11px;
+    }
+    html,body{min-height:100vh;font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+      background:radial-gradient(ellipse 60% 50% at 20% 10%,rgba(191,90,242,0.09) 0%,transparent 60%),
+      radial-gradient(ellipse 50% 55% at 80% 90%,rgba(124,58,237,0.06) 0%,transparent 60%)}
+    nav{position:sticky;top:0;z-index:50;background:rgba(10,10,15,0.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+    .brand{font-family:'Geist Mono',monospace;font-size:16px;font-weight:600;color:var(--text);text-decoration:none}
+    .brand em{font-style:normal;color:var(--accent)}
+    .back{font-family:'Geist Mono',monospace;font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;transition:color 0.2s}
+    .back:hover{color:var(--accent)}
+    .wrap{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:40px 20px 80px;display:flex;flex-direction:column;gap:20px}
+    .hero{animation:up 0.4s ease both}
+    .hero-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;background:var(--accent-dim);border:1px solid rgba(191,90,242,0.22);border-radius:100px;font-family:'Geist Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+    .badge-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pulse 2s ease infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.7)}}
+    .hero h1{font-size:clamp(28px,7vw,46px);font-weight:300;line-height:1.1;letter-spacing:-0.03em;margin-bottom:8px}
+    .hero h1 em{font-style:normal;color:var(--accent)}
+    .hero h1 strong{font-weight:700}
+    .hero p{font-size:13px;color:var(--muted)}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);backdrop-filter:blur(28px) saturate(1.5);-webkit-backdrop-filter:blur(28px) saturate(1.5);box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,0.055);overflow:hidden;animation:up 0.4s 0.1s ease both}
+    .divider{height:1px;background:var(--border)}
+
+    /* Type tabs */
+    .tabs-wrap{padding:16px 20px}
+    .tab-label{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+    .tabs{display:flex;gap:6px}
+    .tab{flex:1;padding:9px;background:var(--surface-h);border:1px solid var(--border);border-radius:var(--r-sm);font-family:'Geist Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all 0.2s;text-align:center}
+    .tab.active{background:var(--accent-dim);border-color:rgba(191,90,242,0.3);color:var(--accent)}
+
+    /* Drop zone */
+    .drop-section{padding:0 20px 16px}
+    .drop-zone{padding:32px 20px;cursor:pointer;text-align:center;border:2px dashed var(--border-s);border-radius:var(--r-sm);transition:border-color 0.2s,background 0.2s;position:relative}
+    .drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:var(--accent-dim)}
+    .drop-icon{font-size:36px;margin-bottom:10px}
+    .drop-label{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px}
+    .drop-sub{font-family:'Geist Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:0.04em}
+    input[type=file]{display:none}
+    .preview-row{display:none;align-items:center;gap:12px;padding:12px 14px;background:var(--surface-h);border:1px solid var(--border);border-radius:var(--r-sm);margin-top:10px}
+    .preview-row.show{display:flex}
+    .preview-icon{font-size:28px;flex-shrink:0}
+    .preview-info{flex:1;min-width:0}
+    .preview-name{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .preview-size{font-family:'Geist Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px}
+    .clear-btn{background:none;border:1px solid var(--border-s);border-radius:50%;width:26px;height:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;flex-shrink:0;transition:all 0.2s}
+    .clear-btn:hover{border-color:rgba(255,60,60,0.4);color:rgba(255,100,100,0.9)}
+
+    /* Format picker */
+    .format-section{padding:0 20px 16px}
+    .format-label{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+    .format-grid{display:flex;flex-wrap:wrap;gap:6px}
+    .fmt-btn{padding:8px 14px;background:var(--surface-h);border:1px solid var(--border);border-radius:var(--r-sm);font-family:'Geist Mono',monospace;font-size:11px;font-weight:500;color:var(--muted);cursor:pointer;transition:all 0.18s;letter-spacing:0.04em}
+    .fmt-btn:hover{border-color:rgba(191,90,242,0.3);color:var(--accent)}
+    .fmt-btn.active{background:var(--accent-dim);border-color:rgba(191,90,242,0.35);color:var(--accent)}
+
+    /* Go button */
+    .go-btn{width:100%;padding:15px 20px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-family:'Geist Mono',monospace;font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);transition:background 0.2s,opacity 0.2s}
+    .go-btn:hover:not(:disabled){background:var(--accent-dim)}
+    .go-btn:disabled{opacity:0.3;cursor:not-allowed}
+    .go-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.8;fill:none;transition:transform 0.25s}
+    .go-btn:hover:not(:disabled) svg{transform:translateX(4px)}
+
+    /* Progress */
+    .prog-wrap{display:none;padding:14px 20px;border-top:1px solid var(--border);flex-direction:column;gap:8px}
+    .prog-wrap.show{display:flex}
+    .prog-label{display:flex;justify-content:space-between;font-family:'Geist Mono',monospace;font-size:10px;color:var(--muted)}
+    .prog-bar{height:2px;background:var(--border-s);border-radius:2px;overflow:hidden}
+    .prog-fill{height:100%;background:var(--accent);border-radius:2px;width:38%;animation:indie 1.3s ease-in-out infinite}
+    @keyframes indie{0%{transform:translateX(-200%)}100%{transform:translateX(400%)}}
+
+    /* Error */
+    .err{display:none;padding:12px 16px;background:rgba(255,59,48,0.08);border:1px solid rgba(255,59,48,0.2);border-radius:var(--r-sm);font-family:'Geist Mono',monospace;font-size:11px;color:rgba(255,100,100,0.9);line-height:1.6}
+    .err.show{display:block}
+
+    /* Result */
+    .result-card{display:none;flex-direction:column;animation:up 0.35s ease both}
+    .result-card.show{display:flex}
+    .result-body{padding:18px 20px}
+    .result-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+    .result-icon{font-size:32px}
+    .result-info{}
+    .result-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:3px}
+    .result-sub{font-family:'Geist Mono',monospace;font-size:10px;color:var(--muted)}
+    .dl-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:13px 20px;background:var(--surface-h);border:1px solid var(--border-s);border-radius:var(--r-sm);text-decoration:none;font-family:'Geist Mono',monospace;font-size:12px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text);transition:background 0.2s,color 0.2s,transform 0.15s}
+    .dl-btn:hover{background:var(--accent);border-color:transparent;color:#fff;transform:translateY(-1px)}
+    .dl-btn svg{width:14px;height:14px;stroke:currentColor;stroke-width:1.8;fill:none}
+
+    footer{position:relative;z-index:1;text-align:center;font-family:'Geist Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:0.08em;text-transform:uppercase;padding:20px}
+    @keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+<nav>
+  <a class="brand" href="/">Sauce<em>Photo</em></a>
+  <a class="back" href="/">← Kembali</a>
+</nav>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-badge"><span class="badge-dot"></span> Free Converter</div>
+    <h1>Convert <em>apa saja,</em><br><strong>gratis.</strong></h1>
+    <p>Gambar, video, audio — konversi langsung di browser, tanpa upload ke server pihak ketiga.</p>
+  </div>
+
+  <div class="card">
+    <!-- Type tabs -->
+    <div class="tabs-wrap">
+      <div class="tab-label">Tipe File</div>
+      <div class="tabs">
+        <button class="tab active" data-type="image" type="button">Gambar</button>
+        <button class="tab" data-type="media" type="button">Video / Audio</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Drop zone -->
+    <div class="drop-section">
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-icon" id="dropIcon">🖼️</div>
+        <div class="drop-label">Drop file di sini</div>
+        <div class="drop-sub" id="dropSub">JPG, PNG, WEBP &mdash; max 20MB</div>
+        <input type="file" id="fileInput" accept="image/*"/>
+      </div>
+      <div class="preview-row" id="previewRow">
+        <div class="preview-icon" id="previewIcon">🖼️</div>
+        <div class="preview-info">
+          <div class="preview-name" id="previewName"></div>
+          <div class="preview-size" id="previewSize"></div>
+        </div>
+        <button class="clear-btn" id="clearBtn" type="button">✕</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Format picker -->
+    <div class="format-section">
+      <div class="format-label">Format Output</div>
+      <div class="format-grid" id="formatGrid"></div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Go -->
+    <button class="go-btn" id="goBtn" type="button" disabled>
+      <span>Convert Sekarang</span>
+      <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </button>
+
+    <div class="prog-wrap" id="progWrap">
+      <div class="prog-label"><span id="progText">Mengkonversi...</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+    </div>
+  </div>
+
+  <div class="err" id="errMsg"></div>
+
+  <div class="card result-card" id="resultCard">
+    <div class="result-body">
+      <div class="result-top">
+        <div class="result-icon" id="resultIcon">✅</div>
+        <div class="result-info">
+          <div class="result-title" id="resultTitle">Konversi selesai</div>
+          <div class="result-sub" id="resultSub"></div>
+        </div>
+      </div>
+      <a class="dl-btn" id="dlBtn" href="#" download>
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Hasil
+      </a>
+    </div>
+  </div>
+
+  <footer>SaucePhoto &mdash; Converter Gratis</footer>
+</div>
+
+<script>
+(function(){
+  var currentType = 'image';
+  var selectedFile = null;
+  var selectedFormat = null;
+
+  var FORMATS = {
+    image: [
+      { fmt: 'jpg', label: 'JPG', icon: '🖼️' },
+      { fmt: 'png', label: 'PNG', icon: '🖼️' },
+      { fmt: 'webp', label: 'WebP', icon: '🖼️' },
+      { fmt: 'avif', label: 'AVIF', icon: '🖼️' }
+    ],
+    media: [
+      { fmt: 'mp3', label: 'MP3', icon: '🎵' },
+      { fmt: 'mp4', label: 'MP4', icon: '🎬' },
+      { fmt: 'wav', label: 'WAV', icon: '🎵' },
+      { fmt: 'aac', label: 'AAC', icon: '🎵' },
+      { fmt: 'm4a', label: 'M4A', icon: '🎵' },
+      { fmt: 'ogg', label: 'OGG', icon: '🎵' }
+    ]
+  };
+
+  var ACCEPT = {
+    image: 'image/jpeg,image/png,image/webp,image/avif,image/gif',
+    media: 'video/*,audio/*'
+  };
+
+  var ICONS = { image: '🖼️', media: '🎬' };
+  var SUBS = { image: 'JPG, PNG, WEBP, AVIF — max 20MB', media: 'MP4, MP3, WAV, AVI, dll — max 100MB' };
+
+  var dropZone = document.getElementById('dropZone');
+  var dropIcon = document.getElementById('dropIcon');
+  var dropSub = document.getElementById('dropSub');
+  var fileInput = document.getElementById('fileInput');
+  var previewRow = document.getElementById('previewRow');
+  var previewIcon = document.getElementById('previewIcon');
+  var previewName = document.getElementById('previewName');
+  var previewSize = document.getElementById('previewSize');
+  var clearBtn = document.getElementById('clearBtn');
+  var formatGrid = document.getElementById('formatGrid');
+  var goBtn = document.getElementById('goBtn');
+  var progWrap = document.getElementById('progWrap');
+  var progText = document.getElementById('progText');
+  var errMsg = document.getElementById('errMsg');
+  var resultCard = document.getElementById('resultCard');
+  var resultTitle = document.getElementById('resultTitle');
+  var resultSub = document.getElementById('resultSub');
+  var resultIcon = document.getElementById('resultIcon');
+  var dlBtn = document.getElementById('dlBtn');
+
+  function showErr(msg){ errMsg.textContent=msg; errMsg.classList.add('show'); }
+  function hideErr(){ errMsg.classList.remove('show'); }
+
+  function fmtBytes(b){ return b>1024*1024 ? (b/1024/1024).toFixed(2)+' MB' : (b/1024).toFixed(1)+' KB'; }
+
+  function renderFormats(){
+    formatGrid.innerHTML = '';
+    selectedFormat = null;
+    FORMATS[currentType].forEach(function(f){
+      var btn = document.createElement('button');
+      btn.className = 'fmt-btn';
+      btn.textContent = f.label;
+      btn.type = 'button';
+      btn.setAttribute('data-fmt', f.fmt);
+      btn.addEventListener('click', function(){
+        document.querySelectorAll('.fmt-btn').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        selectedFormat = f.fmt;
+        checkReady();
+      });
+      formatGrid.appendChild(btn);
+    });
+  }
+
+  function switchType(type){
+    currentType = type;
+    document.querySelectorAll('.tab').forEach(function(t){
+      t.classList.toggle('active', t.getAttribute('data-type') === type);
+    });
+    dropIcon.textContent = ICONS[type];
+    dropSub.textContent = SUBS[type];
+    fileInput.setAttribute('accept', ACCEPT[type]);
+    clearFile();
+    renderFormats();
+    resultCard.classList.remove('show');
+    hideErr();
+  }
+
+  document.querySelectorAll('.tab').forEach(function(t){
+    t.addEventListener('click', function(){ switchType(t.getAttribute('data-type')); });
+  });
+
+  function setFile(f){
+    selectedFile = f;
+    previewIcon.textContent = currentType === 'image' ? '🖼️' : (f.type.startsWith('video') ? '🎬' : '🎵');
+    previewName.textContent = f.name;
+    previewSize.textContent = fmtBytes(f.size);
+    dropZone.style.display = 'none';
+    previewRow.classList.add('show');
+    checkReady();
+    hideErr();
+    resultCard.classList.remove('show');
+  }
+
+  function clearFile(){
+    selectedFile = null;
+    fileInput.value = '';
+    dropZone.style.display = 'block';
+    previewRow.classList.remove('show');
+    goBtn.disabled = true;
+  }
+
+  function checkReady(){ goBtn.disabled = !(selectedFile && selectedFormat); }
+
+  dropZone.addEventListener('click', function(){ fileInput.click(); });
+  fileInput.addEventListener('change', function(){ if(this.files[0]) setFile(this.files[0]); });
+  clearBtn.addEventListener('click', clearFile);
+  dropZone.addEventListener('dragover', function(e){ e.preventDefault(); this.classList.add('drag'); });
+  dropZone.addEventListener('dragleave', function(){ this.classList.remove('drag'); });
+  dropZone.addEventListener('drop', function(e){ e.preventDefault(); this.classList.remove('drag'); if(e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]); });
+
+  goBtn.addEventListener('click', function(){
+    if(!selectedFile || !selectedFormat) return;
+    hideErr();
+    resultCard.classList.remove('show');
+    progWrap.classList.add('show');
+    goBtn.disabled = true;
+    progText.textContent = 'Mengkonversi ke ' + selectedFormat.toUpperCase() + '...';
+
+    var endpoint = currentType === 'image' ? '/api/convert/image' : '/api/convert/media';
+    var form = new FormData();
+    form.append('file', selectedFile);
+    form.append('format', selectedFormat);
+
+    fetch(endpoint, { method: 'POST', body: form })
+      .then(function(r){
+        if(!r.ok) return r.json().then(function(d){ throw new Error(d.error || 'Gagal'); });
+        var cd = r.headers.get('content-disposition') || '';
+        var match = cd.match(/filename="?([^"]+)"?/);
+        var filename = match ? match[1] : 'output.' + selectedFormat;
+        return r.blob().then(function(blob){ return { blob: blob, filename: filename }; });
+      })
+      .then(function(result){
+        var url = URL.createObjectURL(result.blob);
+        dlBtn.href = url;
+        dlBtn.setAttribute('download', result.filename);
+        var isImg = currentType === 'image';
+        resultIcon.textContent = isImg ? '🖼️' : (selectedFormat === 'mp4' ? '🎬' : '🎵');
+        resultTitle.textContent = 'Konversi ke ' + selectedFormat.toUpperCase() + ' selesai';
+        resultSub.textContent = result.filename + ' — ' + fmtBytes(result.blob.size);
+        progWrap.classList.remove('show');
+        resultCard.classList.add('show');
+        goBtn.disabled = false;
+      })
+      .catch(function(err){
+        progWrap.classList.remove('show');
+        goBtn.disabled = false;
+        showErr(err.message);
+      });
+  });
+
+  // Init
+  renderFormats();
+})();
+</script>
+</body>
+</html>
