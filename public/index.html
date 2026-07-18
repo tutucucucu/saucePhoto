@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SaucePhoto — Tools Foto Gratis</title>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0a0a0f;--surface:rgba(255,255,255,0.045);--surface-h:rgba(255,255,255,0.08);--border:rgba(255,255,255,0.07);--border-s:rgba(255,255,255,0.13);--text:#f2f2f7;--muted:rgba(242,242,247,0.45);--dim:rgba(242,242,247,0.2);--accent:#bf5af2;--accent2:#7c3aed;--accent-dim:rgba(191,90,242,0.12);--shadow:0 12px 48px rgba(0,0,0,0.7);--r:18px;--r-sm:11px}
+    html,body{min-height:100vh;font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 60% 50% at 20% 10%,rgba(191,90,242,0.1) 0%,transparent 60%),radial-gradient(ellipse 50% 55% at 80% 90%,rgba(124,58,237,0.07) 0%,transparent 60%)}
+    nav{position:sticky;top:0;z-index:50;background:rgba(10,10,15,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+    .brand{font-family:'Geist Mono',monospace;font-size:16px;font-weight:600;color:var(--text);text-decoration:none;letter-spacing:-0.02em}
+    .brand em{font-style:normal;color:var(--accent)}
+    .wrap{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:60px 20px 100px}
+    .hero{text-align:center;margin-bottom:60px}
+    .hero-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:var(--accent-dim);border:1px solid rgba(191,90,242,0.22);border-radius:100px;font-family:'Geist Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
+    .badge-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pulse 2s ease infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.7)}}
+    .hero h1{font-size:clamp(32px,8vw,58px);font-weight:300;line-height:1.1;letter-spacing:-0.04em;margin-bottom:14px}
+    .hero h1 em{font-style:normal;color:var(--accent)}
+    .hero h1 strong{font-weight:700}
+    .hero p{font-size:15px;color:var(--muted);max-width:420px;margin:0 auto;line-height:1.7}
+    .tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .tool-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:28px 24px;backdrop-filter:blur(20px);text-decoration:none;color:var(--text);transition:transform 0.22s cubic-bezier(0.34,1.56,0.64,1),border-color 0.2s,box-shadow 0.2s;display:flex;flex-direction:column;gap:14px}
+    .tool-card:hover{transform:translateY(-3px);border-color:rgba(191,90,242,0.3);box-shadow:0 8px 40px rgba(191,90,242,0.12)}
+    .tool-icon{width:48px;height:48px;border-radius:14px;background:var(--accent-dim);border:1px solid rgba(191,90,242,0.2);display:flex;align-items:center;justify-content:center;font-size:22px}
+    .tool-name{font-size:18px;font-weight:600;letter-spacing:-0.02em}
+    .tool-desc{font-size:13px;color:var(--muted);line-height:1.65}
+    .tool-arrow{display:flex;align-items:center;gap:6px;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-top:auto}
+    .tool-arrow svg{width:12px;height:12px;stroke:currentColor;stroke-width:2;fill:none;transition:transform 0.2s}
+    .tool-card:hover .tool-arrow svg{transform:translateX(3px)}
+    @media(max-width:500px){.tools-grid{grid-template-columns:1fr}}
+    footer{position:relative;z-index:1;text-align:center;font-family:'Geist Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:0.08em;text-transform:uppercase;padding:20px}
+    @keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+    .hero{animation:up 0.5s ease both}
+    .tools-grid{animation:up 0.5s 0.1s ease both}
+  </style>
+</head>
+<body>
+<nav>
+  <a class="brand" href="/">Sauce<em>Photo</em></a>
+</nav>
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-badge"><span class="badge-dot"></span> Free Image Tools</div>
+    <h1>Foto lebih <em>jernih.</em><br><strong>Gratis.</strong></h1>
+    <p>Tools AI untuk memperjelas dan mengedit foto kamu tanpa bayar sepeser pun.</p>
+  </div>
+  <div class="tools-grid">
+    <a class="tool-card" href="/upscale">
+      <div class="tool-icon">🔍</div>
+      <div class="tool-name">Upscale Foto</div>
+      <div class="tool-desc">Perbesar foto hingga 4x lebih tajam dengan teknologi AI. Hilangkan blur secara otomatis.</div>
+      <div class="tool-arrow">Coba sekarang <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+    </a>
+    <a class="tool-card" href="/converter">
+      <div class="tool-icon">🔄</div>
+      <div class="tool-name">Converter</div>
+      <div class="tool-desc">Ubah format gambar dan video. JPG, PNG, MP4, MP3 dan banyak lagi.</div>
+      <div class="tool-arrow">Lihat paket <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+    </a>
+  </div>
+</div>
+<footer>SaucePhoto &mdash; Free Image Tools</footer>
+</body>
+</html>
