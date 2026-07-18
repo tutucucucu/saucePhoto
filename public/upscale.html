@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upscale Foto — SaucePhoto</title>
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#0a0a0f;--surface:rgba(255,255,255,0.045);--surface-h:rgba(255,255,255,0.08);--border:rgba(255,255,255,0.07);--border-s:rgba(255,255,255,0.13);--text:#f2f2f7;--muted:rgba(242,242,247,0.45);--dim:rgba(242,242,247,0.2);--accent:#bf5af2;--accent-dim:rgba(191,90,242,0.12);--shadow:0 12px 48px rgba(0,0,0,0.7);--r:18px;--r-sm:11px}
+    html,body{min-height:100vh;font-family:'Geist',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 60% 50% at 20% 10%,rgba(191,90,242,0.1) 0%,transparent 60%)}
+    nav{position:sticky;top:0;z-index:50;background:rgba(10,10,15,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+    .brand{font-family:'Geist Mono',monospace;font-size:16px;font-weight:600;color:var(--text);text-decoration:none}
+    .brand em{font-style:normal;color:var(--accent)}
+    .back{font-family:'Geist Mono',monospace;font-size:11px;color:var(--muted);text-decoration:none;letter-spacing:0.06em;text-transform:uppercase;transition:color 0.2s}
+    .back:hover{color:var(--accent)}
+    .wrap{position:relative;z-index:1;max-width:600px;margin:0 auto;padding:40px 20px 80px;display:flex;flex-direction:column;gap:20px}
+    .hero{animation:up 0.4s ease both}
+    .hero-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;background:var(--accent-dim);border:1px solid rgba(191,90,242,0.22);border-radius:100px;font-family:'Geist Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+    .badge-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pulse 2s ease infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.7)}}
+    .hero h1{font-size:clamp(28px,7vw,44px);font-weight:300;line-height:1.1;letter-spacing:-0.03em;margin-bottom:8px}
+    .hero h1 em{font-style:normal;color:var(--accent)}
+    .hero p{font-size:13px;color:var(--muted)}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);backdrop-filter:blur(28px) saturate(1.5);-webkit-backdrop-filter:blur(28px) saturate(1.5);box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,0.055);overflow:hidden;animation:up 0.4s 0.1s ease both}
+    .drop-zone{padding:40px 28px;cursor:pointer;text-align:center;border:2px dashed var(--border-s);margin:20px;border-radius:var(--r-sm);transition:border-color 0.2s,background 0.2s}
+    .drop-zone:hover,.drop-zone.drag{border-color:var(--accent);background:var(--accent-dim)}
+    .drop-icon{font-size:40px;margin-bottom:12px}
+    .drop-label{font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px}
+    .drop-sub{font-size:11px;color:var(--muted);font-family:'Geist Mono',monospace;letter-spacing:0.05em}
+    input[type=file]{display:none}
+    .divider{height:1px;background:var(--border)}
+    .preview-wrap{padding:20px;display:none;gap:16px;align-items:flex-start}
+    .preview-wrap.show{display:flex}
+    .preview-img{width:80px;height:80px;border-radius:10px;object-fit:cover;border:1px solid var(--border-s);flex-shrink:0}
+    .preview-info{flex:1;min-width:0}
+    .preview-name{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+    .preview-size{font-family:'Geist Mono',monospace;font-size:10px;color:var(--muted)}
+    .clear-btn{background:none;border:1px solid var(--border-s);border-radius:50%;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:14px;flex-shrink:0;transition:border-color 0.2s,color 0.2s}
+    .clear-btn:hover{border-color:rgba(255,60,60,0.4);color:rgba(255,100,100,0.9)}
+    .go-btn{width:100%;padding:15px 20px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-family:'Geist Mono',monospace;font-size:12px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);transition:background 0.2s,opacity 0.2s}
+    .go-btn:hover:not(:disabled){background:var(--accent-dim)}
+    .go-btn:disabled{opacity:0.3;cursor:not-allowed}
+    .go-btn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.8;fill:none;transition:transform 0.25s}
+    .go-btn:hover:not(:disabled) svg{transform:translateX(4px)}
+    .prog-wrap{display:none;padding:16px 20px;border-top:1px solid var(--border);flex-direction:column;gap:10px}
+    .prog-wrap.show{display:flex}
+    .prog-label{display:flex;justify-content:space-between;font-family:'Geist Mono',monospace;font-size:10px;color:var(--muted)}
+    .prog-bar{height:2px;background:var(--border-s);border-radius:2px;overflow:hidden}
+    .prog-fill{height:100%;background:var(--accent);border-radius:2px;width:0%;transition:width 0.4s ease}
+    .prog-fill.indie{width:38%;animation:indie 1.3s ease-in-out infinite}
+    @keyframes indie{0%{transform:translateX(-200%)}100%{transform:translateX(400%)}}
+    .err{display:none;padding:12px 16px;background:rgba(255,59,48,0.08);border:1px solid rgba(255,59,48,0.2);border-radius:var(--r-sm);font-family:'Geist Mono',monospace;font-size:11px;color:rgba(255,100,100,0.9);line-height:1.6}
+    .err.show{display:block}
+    .result-card{display:none;flex-direction:column;animation:up 0.35s ease both}
+    .result-card.show{display:flex}
+    .result-preview{width:100%;max-height:320px;object-fit:contain;background:#000;display:block}
+    .result-body{padding:16px 20px}
+    .result-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px}
+    .result-sub{font-family:'Geist Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:14px}
+    .dl-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:13px 20px;background:var(--surface-h);border:1px solid var(--border-s);border-radius:var(--r-sm);text-decoration:none;font-family:'Geist Mono',monospace;font-size:12px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text);transition:background 0.2s,color 0.2s,transform 0.15s}
+    .dl-btn:hover{background:var(--accent);border-color:transparent;color:#fff;transform:translateY(-1px)}
+    .dl-btn svg{width:14px;height:14px;stroke:currentColor;stroke-width:1.8;fill:none}
+    footer{position:relative;z-index:1;text-align:center;font-family:'Geist Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:0.08em;text-transform:uppercase;padding:20px}
+    @keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+<nav>
+  <a class="brand" href="/">Sauce<em>Photo</em></a>
+  <a class="back" href="/">← Kembali</a>
+</nav>
+<div class="wrap">
+  <div class="hero">
+    <div class="hero-badge"><span class="badge-dot"></span> AI Upscale</div>
+    <h1>Foto lebih <em>jernih</em><br>dengan AI.</h1>
+    <p>Upload foto kamu, AI akan memperjelas dan memperbesar otomatis.</p>
+  </div>
+
+  <div class="card">
+    <div class="drop-zone" id="dropZone">
+      <div class="drop-icon">🖼️</div>
+      <div class="drop-label">Drop foto di sini</div>
+      <div class="drop-sub">atau klik untuk pilih file &mdash; JPG, PNG, max 20MB</div>
+      <input type="file" id="fileInput" accept="image/jpeg,image/png,image/jpg,image/webp"/>
+    </div>
+    <div class="preview-wrap" id="previewWrap">
+      <img class="preview-img" id="previewImg" src="" alt=""/>
+      <div class="preview-info">
+        <div class="preview-name" id="previewName"></div>
+        <div class="preview-size" id="previewSize"></div>
+      </div>
+      <button class="clear-btn" id="clearBtn" type="button">✕</button>
+    </div>
+    <div class="divider"></div>
+    <button class="go-btn" id="goBtn" type="button" disabled>
+      <span>Proses Upscale</span>
+      <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </button>
+    <div class="prog-wrap" id="progWrap">
+      <div class="prog-label"><span id="progText">Memulai...</span><span id="progPct"></span></div>
+      <div class="prog-bar"><div class="prog-fill indie" id="progFill"></div></div>
+    </div>
+  </div>
+
+  <div class="err" id="errMsg"></div>
+
+  <div class="card result-card" id="resultCard">
+    <img class="result-preview" id="resultImg" src="" alt="Hasil upscale"/>
+    <div class="result-body">
+      <div class="result-title">Foto berhasil diproses</div>
+      <div class="result-sub" id="resultSub"></div>
+      <a class="dl-btn" id="dlBtn" href="#" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Foto
+      </a>
+    </div>
+  </div>
+
+  <footer>SaucePhoto &mdash; AI Upscale</footer>
+</div>
+
+<script>
+(function(){
+  var dropZone=document.getElementById('dropZone');
+  var fileInput=document.getElementById('fileInput');
+  var previewWrap=document.getElementById('previewWrap');
+  var previewImg=document.getElementById('previewImg');
+  var previewName=document.getElementById('previewName');
+  var previewSize=document.getElementById('previewSize');
+  var clearBtn=document.getElementById('clearBtn');
+  var goBtn=document.getElementById('goBtn');
+  var progWrap=document.getElementById('progWrap');
+  var progFill=document.getElementById('progFill');
+  var progText=document.getElementById('progText');
+  var progPct=document.getElementById('progPct');
+  var errMsg=document.getElementById('errMsg');
+  var resultCard=document.getElementById('resultCard');
+  var resultImg=document.getElementById('resultImg');
+  var resultSub=document.getElementById('resultSub');
+  var dlBtn=document.getElementById('dlBtn');
+  var selectedFile=null;
+
+  function setFile(f){
+    if(!f.type.startsWith('image/')){ showErr('File harus berupa gambar'); return; }
+    if(f.size>20*1024*1024){ showErr('Ukuran file maksimal 20MB'); return; }
+    selectedFile=f;
+    var url=URL.createObjectURL(f);
+    previewImg.src=url;
+    previewName.textContent=f.name;
+    previewSize.textContent=(f.size/1024/1024).toFixed(2)+' MB';
+    dropZone.style.display='none';
+    previewWrap.classList.add('show');
+    goBtn.disabled=false;
+    hideErr();
+    resultCard.classList.remove('show');
+  }
+
+  function clearFile(){
+    selectedFile=null;
+    fileInput.value='';
+    previewImg.src='';
+    dropZone.style.display='block';
+    previewWrap.classList.remove('show');
+    goBtn.disabled=true;
+  }
+
+  function showErr(msg){ errMsg.textContent=msg; errMsg.classList.add('show'); }
+  function hideErr(){ errMsg.classList.remove('show'); }
+
+  function setProgress(text,pct){
+    progText.textContent=text;
+    if(pct!==undefined){
+      progFill.classList.remove('indie');
+      progFill.style.width=pct+'%';
+      progPct.textContent=pct+'%';
+    } else {
+      progFill.classList.add('indie');
+      progFill.style.width='38%';
+      progPct.textContent='';
+    }
+  }
+
+  dropZone.addEventListener('click',function(){ fileInput.click(); });
+  fileInput.addEventListener('change',function(){ if(this.files[0]) setFile(this.files[0]); });
+  clearBtn.addEventListener('click',clearFile);
+
+  dropZone.addEventListener('dragover',function(e){ e.preventDefault(); this.classList.add('drag'); });
+  dropZone.addEventListener('dragleave',function(){ this.classList.remove('drag'); });
+  dropZone.addEventListener('drop',function(e){ e.preventDefault(); this.classList.remove('drag'); if(e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]); });
+
+  goBtn.addEventListener('click', async function(){
+    if(!selectedFile) return;
+    hideErr();
+    resultCard.classList.remove('show');
+    progWrap.classList.add('show');
+    goBtn.disabled=true;
+    setProgress('Membuat sesi...',undefined);
+
+    try {
+      // Step 1: create task
+      var r1=await fetch('/api/upscale/start',{method:'POST'});
+      var task=await r1.json();
+      if(task.error) throw new Error(JSON.stringify(task.error));
+
+      setProgress('Mengunggah foto...',undefined);
+
+      // Step 2: upload
+      var form=new FormData();
+      form.append('server',task.server);
+      form.append('task',task.task);
+      form.append('file',selectedFile);
+      var r2=await fetch('/api/upscale/upload',{method:'POST',body:form});
+      var uploaded=await r2.json();
+      if(uploaded.error) throw new Error(JSON.stringify(uploaded.error));
+
+      setProgress('AI memproses foto...',undefined);
+
+      // Step 3: process
+      var r3=await fetch('/api/upscale/process',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({server:task.server,task:task.task,files:[{server_filename:uploaded.server_filename,filename:selectedFile.name}]})
+      });
+      var processed=await r3.json();
+      if(processed.error) throw new Error(JSON.stringify(processed.error));
+
+      setProgress('Selesai',100);
+      setTimeout(function(){
+        progWrap.classList.remove('show');
+        var dlUrl='/api/upscale/download?server='+task.server+'&task='+task.task;
+        dlBtn.href=dlUrl;
+        resultImg.src=''; // zip, can't preview directly
+        resultImg.style.display='none';
+        resultSub.textContent='File siap diunduh sebagai ZIP';
+        resultCard.classList.add('show');
+        goBtn.disabled=false;
+      },600);
+
+    } catch(err){
+      progWrap.classList.remove('show');
+      goBtn.disabled=false;
+      showErr('Gagal: '+err.message);
+    }
+  });
+})();
+</script>
+</body>
+</html>
